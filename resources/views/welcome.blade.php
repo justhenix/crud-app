@@ -61,15 +61,34 @@
             </div>
 
             <!-- Tab Contents -->
-            <div>
-                <div x-show="activeTab === 'all'">
-                    <span class="text-xs text-slate-400">Showing all items...</span>
-                </div>
-                <div x-show="activeTab === 'computers'" x-cloak>
-                    <span class="text-xs text-slate-400">Showing computers...</span>
-                </div>
-                <div x-show="activeTab === 'peripherals'" x-cloak>
-                    <span class="text-xs text-slate-400">Showing peripherals...</span>
+            <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Asset Name</th>
+                                <th scope="col" class="px-6 py-3">Type</th>
+                                <th scope="col" class="px-6 py-3">Lab Room</th>
+                                <th scope="col" class="px-6 py-3">Serial Number</th>
+                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white text-slate-700">
+                            <!-- Placeholder Row -->
+                            <tr>
+                                <td class="px-6 py-4 font-medium text-slate-900">Lab PC #01</td>
+                                <td class="px-6 py-4">PC</td>
+                                <td class="px-6 py-4">Room 302</td>
+                                <td class="px-6 py-4 font-mono text-xs">SN-2026-0001</td>
+                                <td class="px-6 py-4">Operational</td>
+                                <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
+                                    <button class="text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer">Edit</button>
+                                    <button class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
