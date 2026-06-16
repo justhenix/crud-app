@@ -29,11 +29,38 @@
                   { id: 4, name: 'Mechanical Keyboard', type: 'Keyboard', room: 'Lab B', serial: 'SN-KB-004', status: 'Broken' },
                   { id: 5, name: 'Server PC 02', type: 'PC', room: 'Lab A', serial: 'SN-PC-002', status: 'Operational' }
               ],
+              showCreateModal: false,
+              newItem: {
+                  name: '',
+                  type: 'PC',
+                  room: '',
+                  serial: '',
+                  status: 'Operational'
+              },
               filteredItems() {
                   if (this.activeTab === 'all') return this.items;
                   if (this.activeTab === 'computers') return this.items.filter(i => ['PC', 'Laptop'].includes(i.type));
                   if (this.activeTab === 'peripherals') return this.items.filter(i => ['Monitor', 'Keyboard', 'Mouse', 'Printer', 'Headset'].includes(i.type));
                   return this.items;
+              },
+              resetNewItem() {
+                  this.newItem = { name: '', type: 'PC', room: '', serial: '', status: 'Operational' };
+              },
+              createItem() {
+                  if (!this.newItem.name.trim() || !this.newItem.room.trim() || !this.newItem.serial.trim()) {
+                      alert('Please fill in all fields.');
+                      return;
+                  }
+                  this.items.push({
+                      id: Date.now(),
+                      name: this.newItem.name.trim(),
+                      type: this.newItem.type,
+                      room: this.newItem.room.trim(),
+                      serial: this.newItem.serial.trim(),
+                      status: this.newItem.status
+                  });
+                  this.resetNewItem();
+                  this.showCreateModal = false;
               },
               editItem(item) {},
               deleteItem(id) {}
@@ -54,8 +81,9 @@
 
         <!-- Main Content Area -->
         <main class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
-            <!-- Navigation Tabs -->
-            <div class="border-b border-slate-200 mb-6">
+            <!-- Navigation & Actions Flex Row -->
+            <div class="flex items-center justify-between border-b border-slate-200 mb-6">
+                <!-- Navigation Tabs -->
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button 
                         @click="activeTab = 'all'" 
@@ -76,6 +104,11 @@
                         Peripherals
                     </button>
                 </nav>
+
+                <!-- Action Button -->
+                <button @click="showCreateModal = true" class="mb-2 inline-flex items-center bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold px-3 py-2 rounded-md transition-colors cursor-pointer">
+                    + Add Item
+                </button>
             </div>
 
             <!-- Tab Contents -->
@@ -118,6 +151,82 @@
                 </div>
             </div>
         </main>
+
+        <!-- Create Modal Overlay -->
+        <div x-show="showCreateModal" 
+             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
+             x-cloak
+             @keydown.escape.window="showCreateModal = false">
+            
+            <div class="bg-white border border-slate-200 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4"
+                 @click.away="showCreateModal = false">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="text-base font-semibold text-slate-900">Add New Inventory Asset</h3>
+                    <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                        <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="createItem()" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Name</label>
+                        <input type="text" x-model="newItem.name" required
+                               class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                               placeholder="e.g. Workstation PC 03">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Type</label>
+                            <select x-model="newItem.type" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                                <option value="PC">PC</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Monitor">Monitor</option>
+                                <option value="Keyboard">Keyboard</option>
+                                <option value="Mouse">Mouse</option>
+                                <option value="Printer">Printer</option>
+                                <option value="Headset">Headset</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Status</label>
+                            <select x-model="newItem.status" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                                <option value="Operational">Operational</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Broken">Broken</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lab Room</label>
+                            <input type="text" x-model="newItem.room" required
+                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   placeholder="e.g. Lab B">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Serial Number</label>
+                            <input type="text" x-model="newItem.serial" required
+                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   placeholder="e.g. SN-PC-003">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                        <button type="button" @click="showCreateModal = false" 
+                                class="border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                            Save Asset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- App Footer -->
         <footer class="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
