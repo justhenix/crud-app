@@ -19,7 +19,25 @@
             [x-cloak] { display: none !important; }
         </style>
     </head>
-    <body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col" x-data="{ activeTab: 'all' }">
+    <body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col" 
+          x-data="{ 
+              activeTab: 'all',
+              items: [
+                  { id: 1, name: 'Workstation PC 01', type: 'PC', room: 'Lab A', serial: 'SN-PC-001', status: 'Operational' },
+                  { id: 2, name: 'Dell UltraSharp 24', type: 'Monitor', room: 'Lab A', serial: 'SN-MON-002', status: 'Operational' },
+                  { id: 3, name: 'Developer Laptop', type: 'Laptop', room: 'Lab B', serial: 'SN-LAP-003', status: 'Maintenance' },
+                  { id: 4, name: 'Mechanical Keyboard', type: 'Keyboard', room: 'Lab B', serial: 'SN-KB-004', status: 'Broken' },
+                  { id: 5, name: 'Server PC 02', type: 'PC', room: 'Lab A', serial: 'SN-PC-002', status: 'Operational' }
+              ],
+              filteredItems() {
+                  if (this.activeTab === 'all') return this.items;
+                  if (this.activeTab === 'computers') return this.items.filter(i => ['PC', 'Laptop'].includes(i.type));
+                  if (this.activeTab === 'peripherals') return this.items.filter(i => ['Monitor', 'Keyboard', 'Mouse', 'Printer', 'Headset'].includes(i.type));
+                  return this.items;
+              },
+              editItem(item) {},
+              deleteItem(id) {}
+          }">
         <!-- App Header -->
         <header class="border-b border-slate-200 bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -75,18 +93,26 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 bg-white text-slate-700">
-                            <!-- Placeholder Row -->
-                            <tr>
-                                <td class="px-6 py-4 font-medium text-slate-900">Lab PC #01</td>
-                                <td class="px-6 py-4">PC</td>
-                                <td class="px-6 py-4">Room 302</td>
-                                <td class="px-6 py-4 font-mono text-xs">SN-2026-0001</td>
-                                <td class="px-6 py-4">Operational</td>
-                                <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
-                                    <button class="text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer">Edit</button>
-                                    <button class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
-                                </td>
-                            </tr>
+                            <template x-for="item in filteredItems()" :key="item.id">
+                                <tr>
+                                    <td class="px-6 py-4 font-medium text-slate-900" x-text="item.name"></td>
+                                    <td class="px-6 py-4" x-text="item.type"></td>
+                                    <td class="px-6 py-4" x-text="item.room"></td>
+                                    <td class="px-6 py-4 font-mono text-xs" x-text="item.serial"></td>
+                                    <td class="px-6 py-4" x-text="item.status"></td>
+                                    <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
+                                        <button @click="editItem(item)" class="text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer">Edit</button>
+                                        <button @click="deleteItem(item.id)" class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="filteredItems().length === 0">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-sm text-slate-400">
+                                        No inventory items found.
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
