@@ -53,3 +53,6 @@ bun.lockb
 .php-cs-fixer.cache
 .phpcs-cache
 pint.json
+
+# Personal Note
+note.md
