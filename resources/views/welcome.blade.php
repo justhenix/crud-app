@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>PC Laboratory Inventory</title>
+        <title>CRUD App</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
             [x-cloak] { display: none !important; }
         </style>
     </head>
-    <body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col" 
+    <body class="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col" 
           x-data="{ 
               activeTab: 'all',
               items: [
@@ -29,6 +29,8 @@
                   { id: 4, name: 'Mechanical Keyboard', type: 'Keyboard', room: 'Lab B', serial: 'SN-KB-004', status: 'Broken' },
                   { id: 5, name: 'Server PC 02', type: 'PC', room: 'Lab A', serial: 'SN-PC-002', status: 'Operational' }
               ],
+              theme: 'henix',
+              darkMode: false,
               init() {
                   const saved = localStorage.getItem('pc_lab_inventory');
                   if (saved) {
@@ -41,6 +43,27 @@
                   this.$watch('items', value => {
                       localStorage.setItem('pc_lab_inventory', JSON.stringify(value));
                   });
+
+                  this.theme = localStorage.getItem('pc_lab_theme') || 'henix';
+                  this.darkMode = localStorage.getItem('pc_lab_dark') === 'true';
+                  this.applyTheme();
+
+                  this.$watch('theme', value => {
+                      localStorage.setItem('pc_lab_theme', value);
+                      this.applyTheme();
+                  });
+                  this.$watch('darkMode', value => {
+                      localStorage.setItem('pc_lab_dark', value.toString());
+                      this.applyTheme();
+                  });
+              },
+              applyTheme() {
+                  const html = document.documentElement;
+                  html.classList.remove('theme-henix', 'theme-teto', 'dark');
+                  html.classList.add(`theme-${this.theme}`);
+                  if (this.darkMode) {
+                      html.classList.add('dark');
+                  }
               },
               showCreateModal: false,
               newItem: {
@@ -112,14 +135,37 @@
               }
           }">
         <!-- App Header -->
-        <header class="border-b border-slate-200 bg-white">
+        <header class="border-b border-border bg-card">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     <div class="flex items-center">
-                        <span class="text-lg font-semibold tracking-tight">PC Lab Inventory</span>
+                        <span class="text-lg font-semibold tracking-tight text-foreground">PC Lab Inventory</span>
                     </div>
-                    <div>
-                        <span class="text-xs text-slate-400">System Shell</span>
+                    
+                    <!-- Theme and Mode Controls -->
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center bg-background-alt p-0.5 rounded-md border border-border">
+                            <button @click="theme = 'henix'" 
+                                    :class="theme === 'henix' ? 'bg-card text-foreground shadow-xs' : 'text-muted hover:text-foreground'"
+                                    class="text-[10px] font-semibold uppercase px-2 py-1 rounded-sm transition-colors cursor-pointer">
+                                Henix
+                            </button>
+                            <button @click="theme = 'teto'" 
+                                    :class="theme === 'teto' ? 'bg-card text-foreground shadow-xs' : 'text-muted hover:text-foreground'"
+                                    class="text-[10px] font-semibold uppercase px-2 py-1 rounded-sm transition-colors cursor-pointer">
+                                Teto
+                            </button>
+                        </div>
+
+                        <button @click="darkMode = !darkMode" 
+                                class="p-1.5 rounded-md border border-border bg-card hover:bg-background-alt text-muted hover:text-foreground cursor-pointer">
+                            <svg x-show="darkMode" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                            </svg>
+                            <svg x-show="!darkMode" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -128,40 +174,40 @@
         <!-- Main Content Area -->
         <main class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
             <!-- Navigation & Actions Flex Row -->
-            <div class="flex items-center justify-between border-b border-slate-200 mb-6">
+            <div class="flex items-center justify-between border-b border-border mb-6">
                 <!-- Navigation Tabs -->
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button 
                         @click="activeTab = 'all'" 
-                        :class="activeTab === 'all' ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+                        :class="activeTab === 'all' ? 'border-primary text-primary font-medium' : 'border-transparent text-muted hover:text-foreground hover:border-border'"
                         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-150 cursor-pointer">
                         All Items
                     </button>
                     <button 
                         @click="activeTab = 'computers'" 
-                        :class="activeTab === 'computers' ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+                        :class="activeTab === 'computers' ? 'border-primary text-primary font-medium' : 'border-transparent text-muted hover:text-foreground hover:border-border'"
                         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-150 cursor-pointer">
                         Computers
                     </button>
                     <button 
                         @click="activeTab = 'peripherals'" 
-                        :class="activeTab === 'peripherals' ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+                        :class="activeTab === 'peripherals' ? 'border-primary text-primary font-medium' : 'border-transparent text-muted hover:text-foreground hover:border-border'"
                         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-150 cursor-pointer">
                         Peripherals
                     </button>
                 </nav>
 
                 <!-- Action Button -->
-                <button @click="showCreateModal = true" class="mb-2 inline-flex items-center bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold px-3 py-2 rounded-md transition-colors cursor-pointer">
+                <button @click="showCreateModal = true" class="mb-2 inline-flex items-center bg-primary text-primary-text hover:bg-primary-hover text-xs font-semibold px-3 py-2 rounded-md transition-colors cursor-pointer">
                     + Add Item
                 </button>
             </div>
 
             <!-- Tab Contents -->
-            <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-                        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <table class="min-w-full divide-y divide-border text-left text-sm">
+                        <thead class="bg-background-alt text-xs font-semibold uppercase tracking-wider text-muted">
                             <tr>
                                 <th scope="col" class="px-6 py-3">Asset Name</th>
                                 <th scope="col" class="px-6 py-3">Type</th>
@@ -171,23 +217,23 @@
                                 <th scope="col" class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white text-slate-700">
+                        <tbody class="divide-y divide-border bg-card text-foreground">
                             <template x-for="item in filteredItems()" :key="item.id">
                                 <tr>
-                                    <td class="px-6 py-4 font-medium text-slate-900" x-text="item.name"></td>
-                                    <td class="px-6 py-4" x-text="item.type"></td>
-                                    <td class="px-6 py-4" x-text="item.room"></td>
-                                    <td class="px-6 py-4 font-mono text-xs" x-text="item.serial"></td>
-                                    <td class="px-6 py-4" x-text="item.status"></td>
+                                    <td class="px-6 py-4 font-medium text-foreground" x-text="item.name"></td>
+                                    <td class="px-6 py-4 text-muted" x-text="item.type"></td>
+                                    <td class="px-6 py-4 text-muted" x-text="item.room"></td>
+                                    <td class="px-6 py-4 font-mono text-xs text-muted" x-text="item.serial"></td>
+                                    <td class="px-6 py-4 text-muted" x-text="item.status"></td>
                                     <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
-                                        <button @click="editItem(item)" class="text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer">Edit</button>
-                                        <button @click="confirmDelete(item.id)" class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
+                                        <button @click="editItem(item)" class="text-xs font-medium text-muted hover:text-foreground cursor-pointer">Edit</button>
+                                        <button @click="confirmDelete(item.id)" class="text-xs font-medium text-red-500 hover:text-red-700 cursor-pointer">Delete</button>
                                     </td>
                                 </tr>
                             </template>
                             <template x-if="filteredItems().length === 0">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-sm text-slate-400">
+                                    <td colspan="6" class="px-6 py-8 text-center text-sm text-muted bg-card">
                                         No inventory items found.
                                     </td>
                                 </tr>
@@ -200,32 +246,32 @@
 
         <!-- Create Modal Overlay -->
         <div x-show="showCreateModal" 
-             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
+             class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
              x-cloak
              @keydown.escape.window="showCreateModal = false">
             
-            <div class="bg-white border border-slate-200 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4"
+            <div class="bg-card border border-border rounded-lg shadow-xl max-w-md w-full p-6 space-y-4"
                  @click.away="showCreateModal = false">
                 
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 class="text-base font-semibold text-slate-900">Add New Inventory Asset</h3>
-                    <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <div class="flex items-center justify-between border-b border-border pb-3">
+                    <h3 class="text-base font-semibold text-foreground">Add New Inventory Asset</h3>
+                    <button @click="showCreateModal = false" class="text-muted hover:text-foreground cursor-pointer">
                         <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
                 <form @submit.prevent="createItem()" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Name</label>
+                        <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Name</label>
                         <input type="text" x-model="newItem.name" required
-                               class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                               class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                placeholder="e.g. Workstation PC 03">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Type</label>
-                            <select x-model="newItem.type" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Type</label>
+                            <select x-model="newItem.type" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
                                 <option value="PC">PC</option>
                                 <option value="Laptop">Laptop</option>
                                 <option value="Monitor">Monitor</option>
@@ -236,8 +282,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Status</label>
-                            <select x-model="newItem.status" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Status</label>
+                            <select x-model="newItem.status" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
                                 <option value="Operational">Operational</option>
                                 <option value="Maintenance">Maintenance</option>
                                 <option value="Broken">Broken</option>
@@ -247,26 +293,26 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lab Room</label>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Lab Room</label>
                             <input type="text" x-model="newItem.room" required
-                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                    placeholder="e.g. Lab B">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Serial Number</label>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Serial Number</label>
                             <input type="text" x-model="newItem.serial" required
-                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                    placeholder="e.g. SN-PC-003">
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <div class="flex justify-end space-x-3 pt-3 border-t border-border">
                         <button type="button" @click="showCreateModal = false" 
-                                class="border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                                class="border border-border text-foreground hover:bg-background-alt text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                                class="bg-primary text-primary-text hover:bg-primary-hover text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
                             Save Asset
                         </button>
                     </div>
@@ -276,32 +322,32 @@
 
         <!-- Edit Modal Overlay -->
         <div x-show="showEditModal" 
-             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
+             class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
              x-cloak
              @keydown.escape.window="showEditModal = false">
             
-            <div class="bg-white border border-slate-200 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4"
+            <div class="bg-card border border-border rounded-lg shadow-xl max-w-md w-full p-6 space-y-4"
                  @click.away="showEditModal = false">
                 
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 class="text-base font-semibold text-slate-900">Edit Inventory Asset</h3>
-                    <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <div class="flex items-center justify-between border-b border-border pb-3">
+                    <h3 class="text-base font-semibold text-foreground">Edit Inventory Asset</h3>
+                    <button @click="showEditModal = false" class="text-muted hover:text-foreground cursor-pointer">
                         <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
                 <form @submit.prevent="updateItem()" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Name</label>
+                        <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Name</label>
                         <input type="text" x-model="editItemData.name" required
-                               class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                               class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                placeholder="e.g. Workstation PC 03">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Type</label>
-                            <select x-model="editItemData.type" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Type</label>
+                            <select x-model="editItemData.type" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
                                 <option value="PC">PC</option>
                                 <option value="Laptop">Laptop</option>
                                 <option value="Monitor">Monitor</option>
@@ -312,8 +358,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Status</label>
-                            <select x-model="editItemData.status" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Status</label>
+                            <select x-model="editItemData.status" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
                                 <option value="Operational">Operational</option>
                                 <option value="Maintenance">Maintenance</option>
                                 <option value="Broken">Broken</option>
@@ -323,26 +369,26 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lab Room</label>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Lab Room</label>
                             <input type="text" x-model="editItemData.room" required
-                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                    placeholder="e.g. Lab B">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Serial Number</label>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Serial Number</label>
                             <input type="text" x-model="editItemData.serial" required
-                                   class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-slate-800 focus:outline-none bg-slate-50" 
+                                   class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground" 
                                    placeholder="e.g. SN-PC-003">
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <div class="flex justify-end space-x-3 pt-3 border-t border-border">
                         <button type="button" @click="showEditModal = false" 
-                                class="border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                                class="border border-border text-foreground hover:bg-background-alt text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                                class="bg-primary text-primary-text hover:bg-primary-hover text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
                             Update Asset
                         </button>
                     </div>
@@ -352,21 +398,21 @@
 
         <!-- Delete Confirmation Modal Overlay -->
         <div x-show="showDeleteModal" 
-             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
+             class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
              x-cloak
              @keydown.escape.window="showDeleteModal = false">
             
-            <div class="bg-white border border-slate-200 rounded-lg shadow-xl max-w-sm w-full p-6 space-y-4"
+            <div class="bg-card border border-border rounded-lg shadow-xl max-w-sm w-full p-6 space-y-4"
                  @click.away="showDeleteModal = false">
                 
                 <div class="space-y-2">
-                    <h3 class="text-base font-semibold text-slate-900">Delete Asset</h3>
-                    <p class="text-sm text-slate-500">Are you sure you want to remove this asset from the inventory? This action cannot be undone.</p>
+                    <h3 class="text-base font-semibold text-foreground">Delete Asset</h3>
+                    <p class="text-sm text-muted">Are you sure you want to remove this asset from the inventory? This action cannot be undone.</p>
                 </div>
 
-                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <div class="flex justify-end space-x-3 pt-3 border-t border-border">
                     <button type="button" @click="showDeleteModal = false" 
-                            class="border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                            class="border border-border text-foreground hover:bg-background-alt text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
                         Cancel
                     </button>
                     <button type="button" @click="deleteItem()" 
@@ -378,8 +424,8 @@
         </div>
 
         <!-- App Footer -->
-        <footer class="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
-            <span>PC Laboratory Inventory System &bull; Admin Panel</span>
+        <footer class="border-t border-border bg-card py-4 text-center text-xs text-muted">
+            <span>Computer Laboratory Inventory System - Admin Panel</span>
         </footer>
     </body>
 </html>
