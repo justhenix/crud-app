@@ -1,9 +1,9 @@
 # === Stage 1: Build frontend assets (Vite) ===
-FROM node:20-alpine AS assets-builder
+FROM oven/bun:1.2-alpine AS assets-builder
 WORKDIR /app
 
-# Copy configuration files
-COPY package*.json ./
+# Copy configuration files and lockfile
+COPY package.json bun.lock ./
 COPY vite.config.js ./
 COPY postcss.config.js ./
 COPY tailwind.config.js ./
@@ -13,8 +13,8 @@ COPY resources/ ./resources/
 COPY public/ ./public/
 
 # Install dependencies and build assets
-RUN npm ci
-RUN npm run build
+RUN bun install --frozen-lockfile
+RUN bun run build
 
 # === Stage 2: Main Application Runtime ===
 FROM php:8.4-fpm-alpine
