@@ -10,6 +10,7 @@
 ## Link Deliverables
 * **Repository Mirror GitHub:** [justhenix/crud-app](https://github.com/justhenix/crud-app.git)
 * **Aplikasi Live:** [crud.henix.my.id](https://crud.henix.my.id)
+* **Video Demo Aplikasi & CI/CD:** [Video Demo](https://drive.google.com/file/d/1C7UxmXkgFA4srSlHB5SHv5BtbvANQMEa/view?usp=sharing)
 
 ---
 
@@ -25,7 +26,7 @@ Berikut adalah komponen teknologi yang digunakan dalam sistem:
 | **Kontainerisasi** | Docker & Compose | Standardisasi lingkungan dev & production |
 | **Repository & CI/CD** | GitLab (Local) | Manajemen source code dan pipeline deploy otomatis |
 | **Mirroring** | GitHub | Mirror repository untuk publikasi kode |
-| **Infrastruktur VPS** | Azure VM VPS | Virtual Private Server berbasis Ubuntu/Debian |
+| **Infrastruktur VPS** | Azure VM VPS | Virtual Private Server berbasis Ubuntu |
 | **Sertifikat SSL** | Let's Encrypt | Keamanan koneksi HTTPS aplikasi live |
 
 ---
@@ -69,4 +70,4 @@ Pipeline CI/CD dibagi menjadi dua tahap (*stages*) utama:
 
 ## Aplikasi Live
 
-![Image 3 (Aplikasi Live Ber-SSL)](https://crimson-famous-silkworm-794.mypinata.cloud/ipfs/bafkreia2gix5fugpsbdcqwwzt6mmzwt5drlx6shrfelwsrkxapglz2hyne)
+![Image 3 (Aplikasi Live)](https://crimson-famous-silkworm-794.mypinata.cloud/ipfs/bafkreia2gix5fugpsbdcqwwzt6mmzwt5drlx6shrfelwsrkxapglz2hyne)
