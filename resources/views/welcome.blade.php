@@ -46,6 +46,8 @@
                   serial: '',
                   status: 'Operational'
               },
+              showDeleteModal: false,
+              deleteItemId: null,
               filteredItems() {
                   if (this.activeTab === 'all') return this.items;
                   if (this.activeTab === 'computers') return this.items.filter(i => ['PC', 'Laptop'].includes(i.type));
@@ -86,7 +88,15 @@
                   }
                   this.showEditModal = false;
               },
-              deleteItem(id) {}
+              confirmDelete(id) {
+                  this.deleteItemId = id;
+                  this.showDeleteModal = true;
+              },
+              deleteItem() {
+                  this.items = this.items.filter(i => i.id !== this.deleteItemId);
+                  this.showDeleteModal = false;
+                  this.deleteItemId = null;
+              }
           }">
         <!-- App Header -->
         <header class="border-b border-slate-200 bg-white">
@@ -158,7 +168,7 @@
                                     <td class="px-6 py-4" x-text="item.status"></td>
                                     <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
                                         <button @click="editItem(item)" class="text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer">Edit</button>
-                                        <button @click="deleteItem(item.id)" class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
+                                        <button @click="confirmDelete(item.id)" class="text-xs font-medium text-red-600 hover:text-red-900 cursor-pointer">Delete</button>
                                     </td>
                                 </tr>
                             </template>
@@ -325,6 +335,34 @@
                     </div>
                 </form>
             </div>
+        </div>
+
+        <!-- Delete Confirmation Modal Overlay -->
+        <div x-show="showDeleteModal" 
+             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50" 
+             x-cloak
+             @keydown.escape.window="showDeleteModal = false">
+            
+            <div class="bg-white border border-slate-200 rounded-lg shadow-xl max-w-sm w-full p-6 space-y-4"
+                 @click.away="showDeleteModal = false">
+                
+                <div class="space-y-2">
+                    <h3 class="text-base font-semibold text-slate-900">Delete Asset</h3>
+                    <p class="text-sm text-slate-500">Are you sure you want to remove this asset from the inventory? This action cannot be undone.</p>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" @click="showDeleteModal = false" 
+                            class="border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="button" @click="deleteItem()" 
+                            class="bg-red-600 text-white hover:bg-red-700 text-xs font-semibold px-3 py-2 rounded-md cursor-pointer">
+                        Confirm Delete
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- App Footer -->
         <footer class="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
