@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>CRUD App</title>
+        <title>PC Laboratory Inventory</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +31,8 @@
               ],
               theme: 'henix',
               darkMode: false,
+              sortBy: 'name',
+              sortAsc: true,
               init() {
                   const saved = localStorage.getItem('pc_lab_inventory');
                   if (saved) {
@@ -65,6 +67,14 @@
                       html.classList.add('dark');
                   }
               },
+              toggleSort(field) {
+                  if (this.sortBy === field) {
+                      this.sortAsc = !this.sortAsc;
+                  } else {
+                      this.sortBy = field;
+                      this.sortAsc = true;
+                  }
+              },
               showCreateModal: false,
               newItem: {
                   name: '',
@@ -85,10 +95,20 @@
               showDeleteModal: false,
               deleteItemId: null,
               filteredItems() {
-                  if (this.activeTab === 'all') return this.items;
-                  if (this.activeTab === 'computers') return this.items.filter(i => ['PC', 'Laptop'].includes(i.type));
-                  if (this.activeTab === 'peripherals') return this.items.filter(i => ['Monitor', 'Keyboard', 'Mouse', 'Printer', 'Headset'].includes(i.type));
-                  return this.items;
+                  let filtered = this.items;
+                  if (this.activeTab === 'computers') {
+                      filtered = this.items.filter(i => ['PC', 'Laptop'].includes(i.type));
+                  } else if (this.activeTab === 'peripherals') {
+                      filtered = this.items.filter(i => ['Monitor', 'Keyboard', 'Mouse', 'Printer', 'Headset'].includes(i.type));
+                  }
+                  
+                  return filtered.sort((a, b) => {
+                      let valA = (a[this.sortBy] || '').toString().toLowerCase();
+                      let valB = (b[this.sortBy] || '').toString().toLowerCase();
+                      if (valA < valB) return this.sortAsc ? -1 : 1;
+                      if (valA > valB) return this.sortAsc ? 1 : -1;
+                      return 0;
+                  });
               },
               resetNewItem() {
                   this.newItem = { name: '', type: 'PC', room: '', serial: '', status: 'Operational' };
@@ -205,30 +225,74 @@
 
             <!-- Tab Contents -->
             <!-- Desktop Table View (Hidden on mobile) -->
-            <div class="hidden md:block bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="hidden md:block bg-card border border-border rounded-lg shadow-sm overflow-visible">
+                <div class="overflow-x-visible">
                     <table class="min-w-full divide-y divide-border text-left text-sm">
-                        <thead class="bg-background-alt text-xs font-semibold uppercase tracking-wider text-muted">
+                        <thead class="bg-background-alt text-xs font-semibold uppercase tracking-wider text-muted select-none">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Asset Name</th>
-                                <th scope="col" class="px-6 py-3">Type</th>
-                                <th scope="col" class="px-6 py-3">Lab Room</th>
-                                <th scope="col" class="px-6 py-3">Serial Number</th>
-                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" @click="toggleSort('name')" class="px-6 py-3 cursor-pointer hover:text-foreground">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Asset Name</span>
+                                        <template x-if="sortBy === 'name'"><span x-text="sortAsc ? '↑' : '↓'"></span></template>
+                                    </div>
+                                </th>
+                                <th scope="col" @click="toggleSort('type')" class="px-6 py-3 cursor-pointer hover:text-foreground">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Type</span>
+                                        <template x-if="sortBy === 'type'"><span x-text="sortAsc ? '↑' : '↓'"></span></template>
+                                    </div>
+                                </th>
+                                <th scope="col" @click="toggleSort('room')" class="px-6 py-3 cursor-pointer hover:text-foreground">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Lab Room</span>
+                                        <template x-if="sortBy === 'room'"><span x-text="sortAsc ? '↑' : '↓'"></span></template>
+                                    </div>
+                                </th>
+                                <th scope="col" @click="toggleSort('serial')" class="px-6 py-3 cursor-pointer hover:text-foreground">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Serial Number</span>
+                                        <template x-if="sortBy === 'serial'"><span x-text="sortAsc ? '↑' : '↓'"></span></template>
+                                    </div>
+                                </th>
+                                <th scope="col" @click="toggleSort('status')" class="px-6 py-3 cursor-pointer hover:text-foreground">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Status</span>
+                                        <template x-if="sortBy === 'status'"><span x-text="sortAsc ? '↑' : '↓'"></span></template>
+                                    </div>
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border bg-card text-foreground">
                             <template x-for="item in filteredItems()" :key="item.id">
-                                <tr>
+                                <tr class="hover:bg-background-alt/30 transition-colors">
                                     <td class="px-6 py-4 font-medium text-foreground" x-text="item.name"></td>
                                     <td class="px-6 py-4 text-muted" x-text="item.type"></td>
                                     <td class="px-6 py-4 text-muted" x-text="item.room"></td>
                                     <td class="px-6 py-4 font-mono text-xs text-muted" x-text="item.serial"></td>
-                                    <td class="px-6 py-4 text-muted" x-text="item.status"></td>
-                                    <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
-                                        <button @click="editItem(item)" class="text-xs font-medium text-muted hover:text-foreground cursor-pointer">Edit</button>
-                                        <button @click="confirmDelete(item.id)" class="text-xs font-medium text-red-500 hover:text-red-700 cursor-pointer">Delete</button>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" 
+                                              :class="item.status === 'Operational' ? 'status-operational' : (item.status === 'Maintenance' ? 'status-maintenance' : 'status-broken')"
+                                              x-text="item.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right overflow-visible">
+                                        <!-- Google Drive-like Three-Dots Action Button -->
+                                        <div x-data="{ openMenu: false }" class="relative inline-block text-left">
+                                            <button @click="openMenu = !openMenu" @click.away="openMenu = false" class="p-1 rounded-full hover:bg-background-alt text-muted hover:text-foreground cursor-pointer focus:outline-none">
+                                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v.01M12 12v.01M12 19v.01" />
+                                                </svg>
+                                            </button>
+                                            <div x-show="openMenu" x-cloak
+                                                 class="absolute right-0 mt-1 w-24 bg-card border border-border rounded-md shadow-lg py-1 z-20 text-left focus:outline-none">
+                                                <button type="button" @click="editItem(item); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-background-alt cursor-pointer">
+                                                    Edit
+                                                </button>
+                                                <button type="button" @click="confirmDelete(item.id); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-background-alt cursor-pointer">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
@@ -246,6 +310,22 @@
 
             <!-- Mobile List View (Hidden on desktop) -->
             <div class="block md:hidden space-y-3">
+                <!-- Mobile Sort Controls -->
+                <div class="flex items-center justify-between bg-card border border-border rounded-lg p-3 text-xs text-muted mb-2">
+                    <div class="flex items-center space-x-1">
+                        <span>Sort by:</span>
+                        <select x-model="sortBy" class="bg-background-alt border border-border rounded-md px-2 py-1 text-xs text-foreground focus:outline-none cursor-pointer">
+                            <option value="name">Name</option>
+                            <option value="type">Type</option>
+                            <option value="room">Room</option>
+                            <option value="status">Status</option>
+                        </select>
+                    </div>
+                    <button @click="sortAsc = !sortAsc" class="p-1.5 border border-border rounded-md bg-card hover:bg-background-alt text-foreground cursor-pointer flex items-center justify-center">
+                        <span x-text="sortAsc ? '↑ Asc' : '↓ Desc'"></span>
+                    </button>
+                </div>
+
                 <template x-for="item in filteredItems()" :key="item.id">
                     <div class="bg-card border border-border rounded-lg p-4 space-y-3 shadow-xs">
                         <div class="flex items-start justify-between">
@@ -254,13 +334,33 @@
                                 <div class="text-xs text-muted">
                                     <span x-text="item.type"></span> &bull; <span x-text="item.room"></span>
                                 </div>
-                                <div class="text-[11px] font-mono text-muted" x-text="item.serial"></div>
                             </div>
-                            <div class="text-xs font-medium text-right" x-text="item.status"></div>
+                            <div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" 
+                                      :class="item.status === 'Operational' ? 'status-operational' : (item.status === 'Maintenance' ? 'status-maintenance' : 'status-broken')"
+                                      x-text="item.status"></span>
+                            </div>
                         </div>
-                        <div class="flex justify-end space-x-4 pt-2 border-t border-border/50 text-xs">
-                            <button @click="editItem(item)" class="font-medium text-muted hover:text-foreground cursor-pointer">Edit</button>
-                            <button @click="confirmDelete(item.id)" class="font-medium text-red-500 hover:text-red-700 cursor-pointer">Delete</button>
+                        <div class="flex justify-between items-center pt-2 border-t border-border/50">
+                            <div class="text-[11px] font-mono text-muted" x-text="item.serial"></div>
+                            
+                            <!-- Google Drive-like Three-Dots Action Button -->
+                            <div x-data="{ openMenu: false }" class="relative inline-block text-left">
+                                <button @click="openMenu = !openMenu" @click.away="openMenu = false" class="p-1 rounded-full hover:bg-background-alt text-muted hover:text-foreground cursor-pointer focus:outline-none">
+                                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v.01M12 12v.01M12 19v.01" />
+                                    </svg>
+                                </button>
+                                <div x-show="openMenu" x-cloak
+                                     class="absolute right-0 bottom-8 mt-1 w-24 bg-card border border-border rounded-md shadow-lg py-1 z-10 text-left focus:outline-none">
+                                    <button type="button" @click="editItem(item); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-background-alt cursor-pointer">
+                                        Edit
+                                    </button>
+                                    <button type="button" @click="confirmDelete(item.id); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-background-alt cursor-pointer">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -453,7 +553,7 @@
 
         <!-- App Footer -->
         <footer class="border-t border-border bg-card py-4 text-center text-xs text-muted">
-            <span>Computer Laboratory Inventory System - Admin Panel</span>
+            <span>PC Laboratory Inventory System &bull; Admin Panel</span>
         </footer>
     </body>
 </html>

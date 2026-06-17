@@ -14,7 +14,7 @@ body {
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* --- HENIX THEME (Default: Light Mode) --- */
+/* HENIX THEME (Default: Light Mode) */
 :root, html.theme-henix {
     --background: #f8fafc;
     --background-alt: #f1f5f9;
@@ -27,7 +27,7 @@ body {
     --primary-text: #ffffff;
 }
 
-/* --- HENIX THEME (Dark Mode) --- */
+/* HENIX THEME (Dark Mode) */
 html.theme-henix.dark {
     --background: #0a0a0a;
     --background-alt: #141414;
@@ -40,7 +40,7 @@ html.theme-henix.dark {
     --primary-text: #0a0a0a;
 }
 
-/* --- TETO THEME (Light Mode) --- */
+/* TETO THEME (Light Mode) */
 html.theme-teto {
     --background: #fffaf9;
     --background-alt: #fbeee8;
@@ -53,7 +53,7 @@ html.theme-teto {
     --primary-text: #ffffff;
 }
 
-/* --- TETO THEME (Dark Mode) --- */
+/* TETO THEME (Dark Mode) */
 html.theme-teto.dark {
     --background: #0a0a0a;
     --background-alt: #141414;
@@ -64,6 +64,26 @@ html.theme-teto.dark {
     --primary: #ef4444;
     --primary-hover: #f87171;
     --primary-text: #0a0a0a;
+}
+
+/* Status Label Color Variables (Light Mode) */
+:root {
+    --status-operational-bg: #dcfce7;
+    --status-operational-text: #15803d;
+    --status-maintenance-bg: #fef9c3;
+    --status-maintenance-text: #a16207;
+    --status-broken-bg: #fee2e2;
+    --status-broken-text: #b91c1c;
+}
+
+/* Status Label Color Variables (Dark Mode) */
+html.dark {
+    --status-operational-bg: #052e16;
+    --status-operational-text: #4ade80;
+    --status-maintenance-bg: #422006;
+    --status-maintenance-text: #facc15;
+    --status-broken-bg: #450a0a;
+    --status-broken-text: #f87171;
 }
 
 /* Map CSS variables to helper utilities */
@@ -80,3 +100,9 @@ html.theme-teto.dark {
 .border-primary { border-color: var(--primary); }
 .text-primary-text { color: var(--primary-text); }
 .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
+
+/* Status Labels For Items on Table */
+.status-operational { background-color: var(--status-operational-bg); color: var(--status-operational-text); }
+.status-maintenance { background-color: var(--status-maintenance-bg); color: var(--status-maintenance-text); }
+.status-broken { background-color: var(--status-broken-bg); color: var(--status-broken-text); }
+
