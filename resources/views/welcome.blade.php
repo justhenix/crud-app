@@ -174,7 +174,7 @@
         <!-- Main Content Area -->
         <main class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
             <!-- Navigation & Actions Flex Row -->
-            <div class="flex items-center justify-between border-b border-border mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border mb-6 gap-3 sm:gap-0">
                 <!-- Navigation Tabs -->
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button 
@@ -204,7 +204,8 @@
             </div>
 
             <!-- Tab Contents -->
-            <div class="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+            <!-- Desktop Table View (Hidden on mobile) -->
+            <div class="hidden md:block bg-card border border-border rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-border text-left text-sm">
                         <thead class="bg-background-alt text-xs font-semibold uppercase tracking-wider text-muted">
@@ -242,6 +243,33 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Mobile List View (Hidden on desktop) -->
+            <div class="block md:hidden space-y-3">
+                <template x-for="item in filteredItems()" :key="item.id">
+                    <div class="bg-card border border-border rounded-lg p-4 space-y-3 shadow-xs">
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-1">
+                                <h4 class="font-medium text-foreground text-sm" x-text="item.name"></h4>
+                                <div class="text-xs text-muted">
+                                    <span x-text="item.type"></span> &bull; <span x-text="item.room"></span>
+                                </div>
+                                <div class="text-[11px] font-mono text-muted" x-text="item.serial"></div>
+                            </div>
+                            <div class="text-xs font-medium text-right" x-text="item.status"></div>
+                        </div>
+                        <div class="flex justify-end space-x-4 pt-2 border-t border-border/50 text-xs">
+                            <button @click="editItem(item)" class="font-medium text-muted hover:text-foreground cursor-pointer">Edit</button>
+                            <button @click="confirmDelete(item.id)" class="font-medium text-red-500 hover:text-red-700 cursor-pointer">Delete</button>
+                        </div>
+                    </div>
+                </template>
+                <template x-if="filteredItems().length === 0">
+                    <div class="bg-card border border-border rounded-lg p-6 text-center text-sm text-muted">
+                        No inventory items found.
+                    </div>
+                </template>
+            </div>
         </main>
 
         <!-- Create Modal Overlay -->
@@ -268,7 +296,7 @@
                                placeholder="e.g. Workstation PC 03">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Type</label>
                             <select x-model="newItem.type" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
@@ -291,7 +319,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Lab Room</label>
                             <input type="text" x-model="newItem.room" required
@@ -344,7 +372,7 @@
                                placeholder="e.g. Workstation PC 03">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Asset Type</label>
                             <select x-model="editItemData.type" class="w-full border border-border rounded-md px-3 py-2 text-sm focus:border-primary focus:outline-none bg-background-alt text-foreground">
@@ -367,7 +395,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Lab Room</label>
                             <input type="text" x-model="editItemData.room" required
