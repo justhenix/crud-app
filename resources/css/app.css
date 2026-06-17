@@ -105,4 +105,3 @@ html.dark {
 .status-operational { background-color: var(--status-operational-bg); color: var(--status-operational-text); }
 .status-maintenance { background-color: var(--status-maintenance-bg); color: var(--status-maintenance-text); }
 .status-broken { background-color: var(--status-broken-bg); color: var(--status-broken-text); }
-
