@@ -67,6 +67,7 @@ deploy:
       ssh $SSH_USER@$VPS_IP "
         cd /var/www/pc-lab-inventory && \
         docker compose -f docker-compose.prod.yml up -d --build --remove-orphans && \
+        docker compose -f docker-compose.prod.yml restart web && \
         sleep 5 && \
         docker compose -f docker-compose.prod.yml exec -T app sh -c '
           chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \

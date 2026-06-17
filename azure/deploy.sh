@@ -26,6 +26,7 @@ info "Deploying from: $DEPLOY_DIR"
 # ── 2. Build and start containers ──────────────────────────────────────────
 info "Building and starting containers..."
 docker compose -f "$COMPOSE_FILE" up -d --build --remove-orphans
+docker compose -f "$COMPOSE_FILE" restart web
 
 # ── 3. Wait for PostgreSQL health ──────────────────────────────────────────
 info "Waiting for PostgreSQL to be healthy..."
