@@ -2,22 +2,19 @@ stages:
   - test
   - deploy
 
-# Global cache for Composer dependencies to speed up subsequent builds
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - vendor/
     - ~/.composer/cache/
 
-# === 1. Test Stage ===
+# === Test Stage ===
 test:
   stage: test
   image: php:8.3-alpine
   before_script:
-    # Install system libraries and PHP extensions needed for testing
     - apk add --no-cache sqlite-dev libxml2-dev libpng-dev libzip-dev zip unzip git oniguruma-dev
     - docker-php-ext-install pdo pdo_sqlite xml gd zip bcmath mbstring
-    # Retrieve Composer from the official image
     - cp --from=composer:latest /usr/bin/composer /usr/bin/composer
   script:
     - composer install --no-progress --no-interaction --prefer-dist
@@ -25,45 +22,51 @@ test:
     - php artisan key:generate
     - php artisan test
 
-# === 2. Deploy Stage ===
+# === Deploy Stage ===
 deploy:
   stage: deploy
   image: alpine:latest
   only:
-    - main # Deploys automatically when changes are pushed to the main branch
+    - main
   before_script:
-    # Install SSH and Rsync client on the runner
     - apk add --no-cache openssh-client rsync
-    # Run the SSH Agent
     - eval $(ssh-agent -s)
-    # Register the private key stored in the GitLab variable $SSH_PRIVATE_KEY
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    # Create the SSH configuration folder and bypass strict host verification
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-    # 1. Sync the project files directly to the VPS using rsync
-    # We exclude environment files, node_modules, and cache files to protect production configurations
-    - rsync -avz --delete \
-        --exclude='.git/' \
-        --exclude='.gitlab-ci.yml' \
-        --exclude='.env' \
-        --exclude='node_modules/' \
-        --exclude='vendor/' \
-        --exclude='storage/logs/*' \
-        --exclude='storage/framework/cache/*' \
-        --exclude='storage/framework/sessions/*' \
-        --exclude='storage/framework/views/*' \
+    # 1. Sync project files to VM
+    - rsync -avz --delete
+        --exclude='.git/'
+        --exclude='.gitlab-ci.yml'
+        --exclude='.env'
+        --exclude='.env.production'
+        --exclude='node_modules/'
+        --exclude='vendor/'
+        --exclude='storage/logs/*'
+        --exclude='storage/framework/cache/*'
+        --exclude='storage/framework/sessions/*'
+        --exclude='storage/framework/views/*'
+        --exclude='azure/'
         ./ $SSH_USER@$VPS_IP:/var/www/pc-lab-inventory/
 
-    # 2. Log in and execute Docker Compose commands to build/up containers, run migrations, and cache configurations
+    # 2. Run deploy script on VM
     - |
       ssh $SSH_USER@$VPS_IP "
         cd /var/www/pc-lab-inventory && \
-        docker compose up -d --build && \
-        docker compose exec -T app php artisan migrate --force && \
-        docker compose exec -T app php artisan config:cache && \
-        docker compose exec -T app php artisan route:cache && \
-        docker compose exec -T app php artisan view:cache
+        docker compose -f docker-compose.prod.yml up -d --build --remove-orphans && \
+        sleep 5 && \
+        docker compose -f docker-compose.prod.yml exec -T app sh -c '
+          chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
+          chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+        ' && \
+        docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force && \
+        docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache && \
+        docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache && \
+        docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache && \
+        docker compose -f docker-compose.prod.yml exec -T app php artisan event:cache
       "
+  environment:
+    name: production
+    url: https://crud.henix.my.id

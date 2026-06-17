@@ -56,3 +56,7 @@ pint.json
 
 # Personal Note
 note.md
+
+# Build artifacts
+/deploy_package.tar.gz
+/deploy-package.tar.gz

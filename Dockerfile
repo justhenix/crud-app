@@ -17,7 +17,7 @@ RUN npm ci
 RUN npm run build
 
 # === Stage 2: Main Application Runtime ===
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 WORKDIR /var/www
 
 # Install production system dependencies
