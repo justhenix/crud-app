@@ -164,21 +164,9 @@
                     
                     <!-- Theme and Mode Controls -->
                     <div class="flex items-center space-x-3">
-                        <div class="flex items-center bg-background-alt p-0.5 rounded-md border border-border">
-                            <button @click="theme = 'henix'" 
-                                    :class="theme === 'henix' ? 'bg-card text-foreground shadow-xs' : 'text-muted hover:text-foreground'"
-                                    class="text-[10px] font-semibold uppercase px-2 py-1 rounded-sm transition-colors cursor-pointer">
-                                Henix
-                            </button>
-                            <button @click="theme = 'teto'" 
-                                    :class="theme === 'teto' ? 'bg-card text-foreground shadow-xs' : 'text-muted hover:text-foreground'"
-                                    class="text-[10px] font-semibold uppercase px-2 py-1 rounded-sm transition-colors cursor-pointer">
-                                Teto
-                            </button>
-                        </div>
-
+                        <!-- Dark/Light Toggle -->
                         <button @click="darkMode = !darkMode" 
-                                class="p-1.5 rounded-md border border-border bg-card hover:bg-background-alt text-muted hover:text-foreground cursor-pointer">
+                                class="p-1.5 rounded-md border border-border bg-card hover:bg-background-alt text-muted hover:text-foreground cursor-pointer focus:outline-none flex items-center justify-center">
                             <svg x-show="darkMode" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-cloak>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                             </svg>
@@ -186,6 +174,39 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                             </svg>
                         </button>
+
+                        <!-- Color Scheme Burger Menu -->
+                        <div x-data="{ openSchemeMenu: false }" class="relative inline-block text-left">
+                            <button @click="openSchemeMenu = !openSchemeMenu" @click.away="openSchemeMenu = false" 
+                                    class="p-1.5 rounded-md border border-border bg-card hover:bg-background-alt text-muted hover:text-foreground cursor-pointer focus:outline-none flex items-center justify-center" 
+                                    title="Color Scheme">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                            <div x-show="openSchemeMenu" x-cloak
+                                 class="absolute right-0 mt-1 w-32 bg-card border border-border-subtle rounded-md shadow-lg py-1 z-30 focus:outline-none text-left">
+                                <div class="px-3 py-1 text-[10px] font-bold text-muted uppercase tracking-wider border-b border-border-subtle mb-1">
+                                    Color Scheme
+                                </div>
+                                <button type="button" @click="theme = 'henix'; openSchemeMenu = false" 
+                                        :class="theme === 'henix' ? 'bg-background-alt font-medium text-foreground' : 'text-muted hover:text-foreground hover:bg-background-alt/50'"
+                                        class="w-full text-left px-3 py-1.5 text-xs cursor-pointer flex items-center justify-between">
+                                    <span>Henix</span>
+                                    <template x-if="theme === 'henix'">
+                                        <span class="text-xs">&bull;</span>
+                                    </template>
+                                </button>
+                                <button type="button" @click="theme = 'teto'; openSchemeMenu = false" 
+                                        :class="theme === 'teto' ? 'bg-background-alt font-medium text-foreground' : 'text-muted hover:text-foreground hover:bg-background-alt/50'"
+                                        class="w-full text-left px-3 py-1.5 text-xs cursor-pointer flex items-center justify-between">
+                                    <span>Teto</span>
+                                    <template x-if="theme === 'teto'">
+                                        <span class="text-xs">&bull;</span>
+                                    </template>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -284,7 +305,7 @@
                                                 </svg>
                                             </button>
                                             <div x-show="openMenu" x-cloak
-                                                 class="absolute right-0 mt-1 w-24 bg-card border border-border rounded-md shadow-lg py-1 z-20 text-left focus:outline-none">
+                                                 class="absolute right-0 mt-1 w-24 bg-card border border-border-subtle rounded-md shadow-lg py-1 z-20 text-left focus:outline-none">
                                                 <button type="button" @click="editItem(item); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-background-alt cursor-pointer">
                                                     Edit
                                                 </button>
@@ -352,7 +373,7 @@
                                     </svg>
                                 </button>
                                 <div x-show="openMenu" x-cloak
-                                     class="absolute right-0 bottom-8 mt-1 w-24 bg-card border border-border rounded-md shadow-lg py-1 z-10 text-left focus:outline-none">
+                                     class="absolute right-0 bottom-8 mt-1 w-24 bg-card border border-border-subtle rounded-md shadow-lg py-1 z-10 text-left focus:outline-none">
                                     <button type="button" @click="editItem(item); openMenu = false" class="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-background-alt cursor-pointer">
                                         Edit
                                     </button>
@@ -552,8 +573,9 @@
         </div>
 
         <!-- App Footer -->
-        <footer class="border-t border-border bg-card py-4 text-center text-xs text-muted">
-            <span>PC Laboratory Inventory System &bull; Admin Panel</span>
+        <footer class="border-t border-border bg-card py-4 text-center text-xs text-muted space-y-1">
+            <div>PC Laboratory Inventory System - Admin Panel</div>
+            <div class="text-[10px]">Made by L0125013</div>
         </footer>
     </body>
 </html>

@@ -22,6 +22,7 @@ body {
     --foreground: #0f172a;
     --muted: #64748b;
     --border: #e2e8f0;
+    --border-subtle: #f1f5f9;
     --primary: #16a34a;
     --primary-hover: #15803d;
     --primary-text: #ffffff;
@@ -35,6 +36,7 @@ html.theme-henix.dark {
     --foreground: #f8fafc;
     --muted: #a3a3a3;
     --border: #262626;
+    --border-subtle: #171717;
     --primary: #22c55e;
     --primary-hover: #4ade80;
     --primary-text: #0a0a0a;
@@ -48,6 +50,7 @@ html.theme-teto {
     --foreground: #1e0e0a;
     --muted: #7c6864;
     --border: #f1dfd8;
+    --border-subtle: #fbf5f2;
     --primary: #dc2626;
     --primary-hover: #b91c1c;
     --primary-text: #ffffff;
@@ -61,6 +64,7 @@ html.theme-teto.dark {
     --foreground: #f8fafc;
     --muted: #a3a3a3;
     --border: #262626;
+    --border-subtle: #171717;
     --primary: #ef4444;
     --primary-hover: #f87171;
     --primary-text: #0a0a0a;
@@ -93,7 +97,9 @@ html.dark {
 .text-foreground { color: var(--foreground); }
 .text-muted { color: var(--muted); }
 .border-border { border-color: var(--border); }
+.border-border-subtle { border-color: var(--border-subtle); }
 .divide-border > :not([hidden]) ~ :not([hidden]) { border-color: var(--border); }
+.divide-border-subtle > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-subtle); }
 
 .bg-primary { background-color: var(--primary); }
 .text-primary { color: var(--primary); }
