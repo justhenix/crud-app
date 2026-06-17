@@ -29,6 +29,19 @@
                   { id: 4, name: 'Mechanical Keyboard', type: 'Keyboard', room: 'Lab B', serial: 'SN-KB-004', status: 'Broken' },
                   { id: 5, name: 'Server PC 02', type: 'PC', room: 'Lab A', serial: 'SN-PC-002', status: 'Operational' }
               ],
+              init() {
+                  const saved = localStorage.getItem('pc_lab_inventory');
+                  if (saved) {
+                      try {
+                          this.items = JSON.parse(saved);
+                      } catch (e) {
+                          console.error('Failed to load inventory:', e);
+                      }
+                  }
+                  this.$watch('items', value => {
+                      localStorage.setItem('pc_lab_inventory', JSON.stringify(value));
+                  });
+              },
               showCreateModal: false,
               newItem: {
                   name: '',
