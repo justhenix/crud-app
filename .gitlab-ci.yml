@@ -15,7 +15,8 @@ test:
   before_script:
     - apk add --no-cache sqlite-dev libxml2-dev libpng-dev libzip-dev zip unzip git oniguruma-dev
     - docker-php-ext-install pdo pdo_sqlite xml gd zip bcmath mbstring
-    - cp --from=composer:latest /usr/bin/composer /usr/bin/composer
+    - php -r "copy('https://getcomposer.org/composer.phar', '/usr/bin/composer');"
+    - chmod +x /usr/bin/composer
   script:
     - composer install --no-progress --no-interaction --prefer-dist
     - cp .env.example .env
