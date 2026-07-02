@@ -70,16 +70,19 @@ COPY . /var/www
 # Copy compiled assets from frontend-builder stage
 COPY --from=assets-builder /app/public/build /var/www/public/build
 
-# Exclude dev dependencies and optimize autoload mapping
-RUN composer install --no-interaction --no-dev --optimize-autoloader --prefer-dist
-
-# Create necessary directories and set correct ownership & permissions for storage and cache
+# Laravel's Composer scripts call Artisan, which needs these writable paths
+# before package discovery runs.
 RUN mkdir -p /var/www/storage/framework/cache/data \
              /var/www/storage/framework/sessions \
              /var/www/storage/framework/views \
              /var/www/storage/logs \
-             /var/www/bootstrap/cache \
-    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+             /var/www/bootstrap/cache
+
+# Exclude dev dependencies and optimize autoload mapping
+RUN composer install --no-interaction --no-dev --optimize-autoloader --prefer-dist
+
+# Create necessary directories and set correct ownership & permissions for storage and cache
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 9000
